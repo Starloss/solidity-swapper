@@ -40,4 +40,7 @@ module.exports = {
         user1: 1,
         user2: 2
     },
+    gasReporter: {
+        coinmarketcap: process.env.COIN_MARKET_CAP_API_KEY
+    }
 };

@@ -6,6 +6,7 @@ require('@nomiclabs/hardhat-waffle');
 require("@nomiclabs/hardhat-ethers");
 require("@nomiclabs/hardhat-etherscan");
 require('hardhat-deploy');
+require("hardhat-gas-reporter");
 require('solidity-coverage');
  
 module.exports = {

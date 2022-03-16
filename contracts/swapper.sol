@@ -34,8 +34,28 @@ contract Swapper is AccessControlUpgradeable {
 
     /// EVENTS
 
+    /**
+     *  @notice Event fired every time that a Swap is maded
+     *  @param swapper is the address of the user who made the swap
+     *  @param tokenGiven is the address of the token given for the swap
+     *  @param tokenReceived is the address of the token received for the swap
+     *  @param amountGiven is the amount of the token given for the swap
+     *  @param amountReceived is the amount of the token received for the swap
+     */
+    event Swap(
+        address swapper,
+        address tokenGiven,
+        address tokenReceived,
+        uint amountGiven,
+        uint amountReceived
+    );
+
     /// MODIFIERS
 
+    /**
+     *  @notice Modifier function that check if the user has an specific role
+     *  @param _role is the bytes32 representing the role that the user must have
+     */
     modifier onlyRole(bytes32 _role) {
         require(hasRole(_role, msg.sender));
         _;
@@ -53,7 +73,19 @@ contract Swapper is AccessControlUpgradeable {
         setSwapFee(10);
     }
 
-    function swap(address _tokenFrom, uint _tokenAmount, address[] memory _tokens, uint[] memory _percentages) public payable {
+    /**
+     *  @notice Function that allows swap one token to several tokens desired by the user
+     *  @param _tokenFrom is the address of the token which the user wants to give in the swap
+     *  @param _tokenAmount is the amount of the token which the user wants to give in the swap
+     *  @param _tokens is the address of the tokens which the user wants to change in the swap
+     *  @param _percentages is the percentage of the tokens which the user wants to change in the swap
+     */
+    function swap(
+        address _tokenFrom,
+        uint _tokenAmount,
+        address[] memory _tokens,
+        uint[] memory _percentages
+    ) public payable {
         uint tokenAmount;
         address tokenFromAddress = _tokenFrom;
 
@@ -71,24 +103,27 @@ contract Swapper is AccessControlUpgradeable {
         for(uint i = 0; i <_tokens.length; i++) {
             if (_tokens[i] == address(0)) _tokens[i] = IUniswapV2Router02(UNISWAP_ROUTER_ADDRESS).WETH();
             uint amount = tokenAmount * _percentages[i] / 10000;
+            uint[] memory amounts;
 
             address[] memory path = new address[](2);
             path[0] = tokenFromAddress;
             path[1] = _tokens[i];
 
             if (tokenFromAddress == IUniswapV2Router02(UNISWAP_ROUTER_ADDRESS).WETH()) {
-                IUniswapV2Router02(UNISWAP_ROUTER_ADDRESS).swapExactETHForTokens{ value: amount }(amount, path, msg.sender, block.timestamp);
+                amounts = IUniswapV2Router02(UNISWAP_ROUTER_ADDRESS).swapExactETHForTokens{ value: amount }(amount, path, msg.sender, block.timestamp);
             } else {
                 IERC20 tokenFrom = IERC20(tokenFromAddress);
                 tokenFrom.safeTransferFrom(msg.sender, address(this), amount);
                 tokenFrom.approve(UNISWAP_ROUTER_ADDRESS, amount);
                 
                 if (_tokens[i] == IUniswapV2Router02(UNISWAP_ROUTER_ADDRESS).WETH()) {
-                    IUniswapV2Router02(UNISWAP_ROUTER_ADDRESS).swapExactTokensForETH(amount, 0, path, msg.sender, block.timestamp);
+                    amounts = IUniswapV2Router02(UNISWAP_ROUTER_ADDRESS).swapExactTokensForETH(amount, 0, path, msg.sender, block.timestamp);
                 } else {
-                    IUniswapV2Router02(UNISWAP_ROUTER_ADDRESS).swapExactTokensForTokens(amount, 0, path, msg.sender, block.timestamp);
+                    amounts = IUniswapV2Router02(UNISWAP_ROUTER_ADDRESS).swapExactTokensForTokens(amount, 0, path, msg.sender, block.timestamp);
                 }
             }
+
+            emit Swap(msg.sender, path[0], path[1], amounts[0], amounts[1]);
         }
     }
 

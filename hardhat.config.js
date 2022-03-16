@@ -11,7 +11,7 @@ require('solidity-coverage');
  
 module.exports = {
     solidity: {
-        version: "0.8.11",
+        version: "0.6.6",
         settings: {
             optimizer: {
                 enabled: true,
@@ -28,7 +28,7 @@ module.exports = {
         hardhat: {
             forking: {
               url: `https://eth-mainnet.alchemyapi.io/v2/${process.env.ALCHEMY_KEY}`,
-              blockNumber: 14348431
+              blockNumber: 14395546
             }
         }
     },
@@ -41,6 +41,7 @@ module.exports = {
         user2: 2
     },
     gasReporter: {
-        coinmarketcap: process.env.COIN_MARKET_CAP_API_KEY
+        coinmarketcap: process.env.COIN_MARKET_CAP_API_KEY,
+        currency: "USD"
     }
 };

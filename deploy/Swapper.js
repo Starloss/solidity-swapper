@@ -12,7 +12,7 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
       execute: {
         init: {
           methodName: "initialize"
-        },
+        }
       },
     },
     log: true,

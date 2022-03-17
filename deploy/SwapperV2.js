@@ -9,7 +9,12 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
     from: deployer,
     contract: "SwapperV2",
     proxy: {
-      owner: deployer
+      owner: deployer,
+      execute: {
+        init: {
+          methodName: "initialize"
+        },
+      },
     },
     log: true,
   });

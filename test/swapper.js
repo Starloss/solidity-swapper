@@ -1,8 +1,10 @@
 const { expect } = require("chai");
 const { parseEther } = require("ethers/lib/utils");
 const { ethers, network, waffle, deployments, getNamedAccounts } = require("hardhat");
+const { ParaSwap, SwapSide } = require('paraswap');
 
 const provider = waffle.provider;
+const paraSwap = new ParaSwap(1);
 
 const DAIAddress = "0x6B175474E89094C44Da98b954EedeAC495271d0F";
 const DAIABI = [{"inputs":[{"internalType":"uint256","name":"chainId_","type":"uint256"}],"payable":false,"stateMutability":"nonpayable","type":"constructor"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"src","type":"address"},{"indexed":true,"internalType":"address","name":"guy","type":"address"},{"indexed":false,"internalType":"uint256","name":"wad","type":"uint256"}],"name":"Approval","type":"event"},{"anonymous":true,"inputs":[{"indexed":true,"internalType":"bytes4","name":"sig","type":"bytes4"},{"indexed":true,"internalType":"address","name":"usr","type":"address"},{"indexed":true,"internalType":"bytes32","name":"arg1","type":"bytes32"},{"indexed":true,"internalType":"bytes32","name":"arg2","type":"bytes32"},{"indexed":false,"internalType":"bytes","name":"data","type":"bytes"}],"name":"LogNote","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"src","type":"address"},{"indexed":true,"internalType":"address","name":"dst","type":"address"},{"indexed":false,"internalType":"uint256","name":"wad","type":"uint256"}],"name":"Transfer","type":"event"},{"constant":true,"inputs":[],"name":"DOMAIN_SEPARATOR","outputs":[{"internalType":"bytes32","name":"","type":"bytes32"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"PERMIT_TYPEHASH","outputs":[{"internalType":"bytes32","name":"","type":"bytes32"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"internalType":"address","name":"","type":"address"},{"internalType":"address","name":"","type":"address"}],"name":"allowance","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"internalType":"address","name":"usr","type":"address"},{"internalType":"uint256","name":"wad","type":"uint256"}],"name":"approve","outputs":[{"internalType":"bool","name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"balanceOf","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"internalType":"address","name":"usr","type":"address"},{"internalType":"uint256","name":"wad","type":"uint256"}],"name":"burn","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"decimals","outputs":[{"internalType":"uint8","name":"","type":"uint8"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"internalType":"address","name":"guy","type":"address"}],"name":"deny","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"internalType":"address","name":"usr","type":"address"},{"internalType":"uint256","name":"wad","type":"uint256"}],"name":"mint","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"internalType":"address","name":"src","type":"address"},{"internalType":"address","name":"dst","type":"address"},{"internalType":"uint256","name":"wad","type":"uint256"}],"name":"move","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"name","outputs":[{"internalType":"string","name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"nonces","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"internalType":"address","name":"holder","type":"address"},{"internalType":"address","name":"spender","type":"address"},{"internalType":"uint256","name":"nonce","type":"uint256"},{"internalType":"uint256","name":"expiry","type":"uint256"},{"internalType":"bool","name":"allowed","type":"bool"},{"internalType":"uint8","name":"v","type":"uint8"},{"internalType":"bytes32","name":"r","type":"bytes32"},{"internalType":"bytes32","name":"s","type":"bytes32"}],"name":"permit","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"internalType":"address","name":"usr","type":"address"},{"internalType":"uint256","name":"wad","type":"uint256"}],"name":"pull","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"internalType":"address","name":"usr","type":"address"},{"internalType":"uint256","name":"wad","type":"uint256"}],"name":"push","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"internalType":"address","name":"guy","type":"address"}],"name":"rely","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"symbol","outputs":[{"internalType":"string","name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"totalSupply","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"internalType":"address","name":"dst","type":"address"},{"internalType":"uint256","name":"wad","type":"uint256"}],"name":"transfer","outputs":[{"internalType":"bool","name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"internalType":"address","name":"src","type":"address"},{"internalType":"address","name":"dst","type":"address"},{"internalType":"uint256","name":"wad","type":"uint256"}],"name":"transferFrom","outputs":[{"internalType":"bool","name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"version","outputs":[{"internalType":"string","name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"wards","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"}];
@@ -80,6 +82,98 @@ describe("Swapper", () => {
     
             expect(parseFloat(ethers.utils.formatEther(AliceDAIBalanceAfter))).to.be.greaterThan(490);
             expect(parseFloat(ethers.utils.formatEther(AliceLinkBalanceAfter))).to.be.lessThan(1);
+        });
+    });
+
+    describe("Upgrading Swapper", () => {
+        let SwapperV2;
+        const ETHaddress = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE';
+
+        beforeEach(async () => {
+            await deployments.fixture(['SwapperV2']);
+            SwapperV2 = await ethers.getContract('Swapper', owner);
+        });
+
+        describe("Deploy", () => {
+            it("Should set the variable correct", async () => {
+                expect(await SwapperV2.isAdmin(owner.address)).to.be.equal(true);
+                expect(await SwapperV2.swapFee()).to.be.equal(10);
+                expect(await SwapperV2.recipientAddress()).to.be.equal(owner.address);
+            });
+        });
+    
+        describe("Swap functions", () => {
+            it("Should let swap", async () => {
+                const DAIContract = await hre.ethers.getContractAt(DAIABI, DAIAddress);
+                const LINKContract = await hre.ethers.getContractAt(LINKABI, LINKAddress);
+        
+                let tokens = [DAIAddress, LINKAddress];
+                let percentages = [5000, 5000];
+        
+                let AliceLinkBalanceBefore = await LINKContract.balanceOf(Alice.address);
+                let AliceDAIBalanceBefore = await DAIContract.balanceOf(Alice.address);
+        
+                expect(AliceLinkBalanceBefore).to.be.equal(0);
+                expect(AliceDAIBalanceBefore).to.be.equal(0);
+                
+                await SwapperV2.connect(Alice).swap("0x0000000000000000000000000000000000000000", parseEther("1"), tokens, percentages, { value: parseEther("1") });
+                
+                let AliceLinkBalanceAfter = await LINKContract.balanceOf(Alice.address);
+                let AliceDAIBalanceAfter = await DAIContract.balanceOf(Alice.address);
+                
+                expect(parseFloat(ethers.utils.formatEther(AliceLinkBalanceAfter))).to.be.greaterThan(94);
+                expect(parseFloat(ethers.utils.formatEther(AliceDAIBalanceAfter))).to.be.greaterThan(1300);
+        
+                tokens = ["0x0000000000000000000000000000000000000000"];
+                percentages = [10000];
+        
+                AliceDAIBalanceBefore = await DAIContract.balanceOf(Alice.address);
+                
+                await DAIContract.connect(Alice).approve(SwapperV2.address, AliceDAIBalanceBefore);
+                
+                await SwapperV2.connect(Alice).swap(DAIAddress, AliceDAIBalanceBefore, tokens, percentages);
+                
+                AliceDAIBalanceAfter = await DAIContract.balanceOf(Alice.address);
+        
+                expect(parseFloat(ethers.utils.formatEther(AliceDAIBalanceAfter))).to.be.lessThan(1);
+        
+                tokens = ["0x0000000000000000000000000000000000000000", DAIAddress];
+                percentages = [5000, 5000];
+        
+                AliceDAIBalanceBefore = await DAIContract.balanceOf(Alice.address);
+                AliceLinkBalanceBefore = await LINKContract.balanceOf(Alice.address);
+                
+                await LINKContract.connect(Alice).approve(SwapperV2.address, AliceLinkBalanceBefore);
+                
+                await SwapperV2.connect(Alice).swap(LINKAddress, AliceLinkBalanceBefore, tokens, percentages);
+                
+                AliceDAIBalanceAfter = await DAIContract.balanceOf(Alice.address);
+                AliceLinkBalanceAfter = await LINKContract.balanceOf(Alice.address);
+        
+                expect(parseFloat(ethers.utils.formatEther(AliceDAIBalanceAfter))).to.be.greaterThan(490);
+                expect(parseFloat(ethers.utils.formatEther(AliceLinkBalanceAfter))).to.be.lessThan(1);
+            });
+
+            xit("Should let swap with Paraswap", async () => {
+                // This test doesn't work
+                const priceRoute = await paraSwap.getRate(ETHaddress, DAIAddress, parseEther("1"), Alice.address, SwapSide.SELL, {}, 18, 18);
+
+                const SellData = JSON.stringify({
+                    fromToken: priceRoute.srcToken,
+                    fromAmount: priceRoute.srcAmount,
+                    toAmount: priceRoute.destAmount,
+                    expectedAmount: 0,
+                    beneficiary: Alice.address,
+                    path: priceRoute.bestRoute,
+                    partner: priceRoute.partner,
+                    feePercent: 10,
+                    permit: "",
+                    deadline: new Date(),
+                    uuid: ""
+                });
+
+                await SwapperV2.swapWithParaswap(SellData, ETHaddress, DAIAddress, parseEther("1"));
+            });
         });
     });
 });

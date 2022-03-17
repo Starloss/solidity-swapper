@@ -4,7 +4,6 @@ pragma solidity =0.6.6;
 import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 import "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
 import "@uniswap/v2-periphery/contracts/interfaces/IUniswapV2Router02.sol";
-import "hardhat/console.sol";
 
 contract Swapper is AccessControlUpgradeable {
     using SafeERC20 for IERC20;

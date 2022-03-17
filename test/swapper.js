@@ -1,7 +1,7 @@
 const { expect } = require("chai");
 const { parseEther } = require("ethers/lib/utils");
-const { ethers, network, waffle, deployments, getNamedAccounts } = require("hardhat");
-const { ParaSwap, SwapSide } = require('paraswap');
+const { ethers, waffle, deployments, getNamedAccounts } = require("hardhat");
+const { ParaSwap } = require('paraswap');
 
 const provider = waffle.provider;
 const paraSwap = new ParaSwap(1);
@@ -88,6 +88,7 @@ describe("Swapper", () => {
     describe("Upgrading Swapper", () => {
         let SwapperV2;
         const ETHaddress = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE';
+        const srcAmount = '1000000000000000000';
 
         beforeEach(async () => {
             await deployments.fixture(['SwapperV2']);
@@ -156,23 +157,12 @@ describe("Swapper", () => {
 
             xit("Should let swap with Paraswap", async () => {
                 // This test doesn't work
-                const priceRoute = await paraSwap.getRate(ETHaddress, DAIAddress, parseEther("1"), Alice.address, SwapSide.SELL, {}, 18, 18);
+                const priceRoute = await paraSwap.getRate(ETHaddress, DAIAddress, srcAmount);
+                console.log(priceRoute);
+                const transaction = await paraSwap.buildTx(ETHaddress, DAIAddress, srcAmount, priceRoute.destAmount, priceRoute, Alice.address);
+                console.log(transaction);
 
-                const SellData = JSON.stringify({
-                    fromToken: priceRoute.srcToken,
-                    fromAmount: priceRoute.srcAmount,
-                    toAmount: priceRoute.destAmount,
-                    expectedAmount: 0,
-                    beneficiary: Alice.address,
-                    path: priceRoute.bestRoute,
-                    partner: priceRoute.partner,
-                    feePercent: 10,
-                    permit: "",
-                    deadline: new Date(),
-                    uuid: ""
-                });
-
-                await SwapperV2.swapWithParaswap(SellData, ETHaddress, DAIAddress, parseEther("1"));
+                await SwapperV2.swapWithParaswap(transaction, ETHaddress, DAIAddress, parseEther("1"));
             });
         });
     });
